@@ -4,6 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2/promise');
+const cors = require('cors'); // <-- 1. Import cors
 
 const dbConfig = {
   host: process.env.DB_HOST || '43.204.203.98',
@@ -19,8 +20,14 @@ const dbConfig = {
 const pool = mysql.createPool(dbConfig);
 console.log('MySQL Connection Pool created.');
 
+const corsOptions = {
+  origin: 'https://real-crm-frontend.vercel.app' // Allow only your frontend to access
+};
+
 const app = express();
 app.use(bodyParser.json());
+app.use(cors(corsOptions));
+
 
 const whatsappRoutes = require('./routes/whatsapp');
 const leadsRoutes = require('./routes/leads');
