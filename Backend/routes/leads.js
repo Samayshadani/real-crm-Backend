@@ -8,6 +8,7 @@ router.get('/', async (req, res) => {
     const [rows] = await db.query('SELECT * FROM leads ORDER BY createdAt DESC');
     res.json(rows);
   } catch (err) {
+        console.error("!!! DATABASE QUERY FAILED !!!:", err); 
     res.status(500).json({ error: 'Failed to fetch leads' });
   }
 });
