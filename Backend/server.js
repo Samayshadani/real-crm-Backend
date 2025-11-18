@@ -16,6 +16,11 @@ const dbConfig = {
   queueLimit: 0
 };
 
+console.log("ATTEMPTING TO CONNECT TO DATABASE:");
+console.log("HOST:", process.env.DB_HOST);
+console.log("USER:", process.env.DB_USER);
+console.log("DATABASE NAME:", process.env.DB_NAME);
+
 // Create a pool of connections instead of a single one
 const pool = mysql.createPool(dbConfig);
 console.log('MySQL Connection Pool created.');
