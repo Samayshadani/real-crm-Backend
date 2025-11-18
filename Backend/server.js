@@ -5,15 +5,17 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2/promise');
 const cors = require('cors'); // <-- 1. Import cors
+const fs = require('fs');
 
 const dbConfig = {
-  host: process.env.DB_HOST || '43.204.203.98',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASS || 'root@autoPart',
-  database: process.env.DB_NAME || 'LeadcaptureCRM',
-  waitForConnections: true,
-  connectionLimit: 10, // Adjust as needed
-  queueLimit: 0
+  host: process.env.DB_HOST || 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com',
+  user: process.env.DB_USER || '2H2yQBmKbT2t1zf.root',
+  password: process.env.DB_PASS || '3MrAkbr20DjeguBM',
+  database: process.env.DB_NAME || 'test',
+  port: 4000,
+  ssl: {
+    ca: fs.readFileSync(process.env.DB_CA)
+  }
 };
 
 console.log("ATTEMPTING TO CONNECT TO DATABASE:");
