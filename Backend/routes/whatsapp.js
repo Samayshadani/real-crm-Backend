@@ -32,6 +32,7 @@ router.post('/webhook', async (req, res) => {
   const db = await req.db;
 
   const body = req.body;
+  console.log("📩 Incoming WhatsApp Webhook:", JSON.stringify(body));
   if (body.channel !== 'whatsapp' || !body.messages) return;
 
   const message = body.messages;
