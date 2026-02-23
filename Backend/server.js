@@ -1,11 +1,15 @@
-// server.js (Updated with Connection Pooling)
+
 
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2/promise');
-const cors = require('cors'); // <-- 1. Import cors
+const cors = require('cors');
 const fs = require('fs');
+
+const app = express();
+
+
 
 const dbConfig = {
   host: process.env.DB_HOST || 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com',
@@ -13,44 +17,100 @@ const dbConfig = {
   password: process.env.DB_PASS || '3MrAkbr20DjeguBM',
   database: process.env.DB_NAME || 'test',
   port: 4000,
-  ssl: {
-    ca: fs.readFileSync(process.env.DB_CA)
-  }
+  ssl: process.env.DB_CA
+    ? {
+        ca: fs.readFileSync(process.env.DB_CA),
+      }
+    : undefined,
 };
 
-console.log("ATTEMPTING TO CONNECT TO DATABASE:");
-console.log("HOST:", process.env.DB_HOST);
-console.log("USER:", process.env.DB_USER);
-console.log("DATABASE NAME:", process.env.DB_NAME);
+console.log("========== DATABASE CONFIG ==========");
+console.log("HOST:", dbConfig.host);
+console.log("USER:", dbConfig.user);
+console.log("DATABASE:", dbConfig.database);
+console.log("=====================================");
 
-// Create a pool of connections instead of a single one
-const pool = mysql.createPool(dbConfig);
-console.log('MySQL Connection Pool created.');
+/* ================================
+   CREATE CONNECTION POOL
+================================ */
 
-const corsOptions = {
-  origin: 'https://real-crm-frontend.vercel.app' // Allow only your frontend to access
-};
+const pool = mysql.createPool({
+  ...dbConfig,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
 
-const app = express();
+console.log('✅ MySQL Connection Pool created.');
+
+/* ================================
+   CORS CONFIGURATION
+================================ */
+
+/* ================================
+   CORS CONFIGURATION
+================================ */
+
+const allowedOrigins = [
+  'http://localhost:8080',
+  'https://barphani.vasifytech.com'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false); // prevent crash
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+}));
+// Handle preflight requests
+// app.options('*', cors());
+
+/* ================================
+   MIDDLEWARE
+================================ */
+
 app.use(bodyParser.json());
-app.use(cors(corsOptions));
+app.use(express.json());
 
+// Attach DB pool to every request
+app.use((req, res, next) => {
+  req.db = pool;
+  next();
+});
+
+/* ================================
+   ROUTES
+================================ */
 
 const whatsappRoutes = require('./routes/whatsapp');
 const leadsRoutes = require('./routes/leads');
 const duplicatesRoutes = require('./routes/duplicates');
 
-// Middleware to attach the pool to every request
-app.use((req, res, next) => {
-  // Instead of creating a new connection, we attach the whole pool
-  // The routes will be responsible for getting a connection from the pool
-  req.db = pool;
-  next();
-});
-
 app.use('/api/leads', leadsRoutes);
 app.use('/api/contacts', whatsappRoutes);
 app.use('/api/duplicates', duplicatesRoutes);
 
+/* ================================
+   HEALTH CHECK
+================================ */
+
+app.get('/', (req, res) => {
+  res.send('🚀 Server is running successfully');
+});
+
+/* ================================
+   START SERVER
+================================ */
+
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
