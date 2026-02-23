@@ -18,7 +18,7 @@ RUN chown -R nextjs:nodejs /app
 
 USER nextjs
 
-EXPOSE 8005
+EXPOSE 8011
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
   CMD wget -q --spider http://localhost:8005/ || exit 1
