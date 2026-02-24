@@ -43,13 +43,7 @@ const pool = mysql.createPool({
 
 console.log('✅ MySQL Connection Pool created.');
 
-/* ================================
-   CORS CONFIGURATION
-================================ */
 
-/* ================================
-   CORS CONFIGURATION
-================================ */
 
 // const allowedOrigins = [
 //   'http://localhost:8010',
