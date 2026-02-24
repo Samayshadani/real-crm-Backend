@@ -1,7 +1,7 @@
 # Application settings
 app_name: barphani-crm-backend
 app_port: 8011
-health_check_path: "/health"
+health_check_path: "/"
 env: production
 
 # Domain configuration
