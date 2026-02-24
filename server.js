@@ -51,24 +51,52 @@ console.log('✅ MySQL Connection Pool created.');
    CORS CONFIGURATION
 ================================ */
 
+// const allowedOrigins = [
+//   'http://localhost:8010',
+//   'https://barphani.vasifytech.com'
+// ];
+
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin) return callback(null, true);
+
+//     if (allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(null, false); 
+//     }
+//   },
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   credentials: true,
+// }));
+
+
+/* ================================
+   CORS CONFIGURATION
+================================ */
 const allowedOrigins = [
-  'http://localhost:8080',
+  'http://localhost:8010',
   'https://barphani.vasifytech.com'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
+      console.log(`✅ CORS allowed origin: ${origin}`);  // Debug log
       callback(null, true);
     } else {
-      callback(null, false); // prevent crash
+      console.log(`❌ CORS blocked origin: ${origin}`);  // Debug log
+      callback(new Error('Not allowed by CORS'), false);
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
+  optionsSuccessStatus: 200  // For older browsers
 }));
+
 // Handle preflight requests
 // app.options('*', cors());
 
